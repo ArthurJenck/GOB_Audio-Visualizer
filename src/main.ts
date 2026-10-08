@@ -72,7 +72,7 @@ function render() {
     // let x = 0
 
     for (let i = 0; i < analyserFrequencyBuffer.length; i++) {
-        const timeDomainValue = analyserTimeDomainBuffer[i]
+        // const timeDomainValue = analyserTimeDomainBuffer[i]
         const frequencyValue = analyserFrequencyBuffer[i]
         const factoredValue =
             frequencyValue -

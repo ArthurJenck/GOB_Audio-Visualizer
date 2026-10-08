@@ -5,13 +5,19 @@ import resize from './resize'
 const canvas = document.querySelector('canvas')!
 const context = canvas.getContext('2d')!
 const audioElement = document.querySelector('audio')!
+const inputContainerElement = document.querySelector(
+    '.audio-input__container'
+)! as HTMLElement
+const inputElement = document.querySelector('#audio-input')! as HTMLElement
+const playDefaultButton = document.querySelector(
+    '#play-default-btn'
+)! as HTMLElement
 
 createGUI()
 
 let audioContext: AudioContext
 let playing = false
 let analyser: AnalyserNode
-let analyserTimeDomainBuffer: Uint8Array<ArrayBuffer>
 let analyserFrequencyBuffer: Uint8Array<ArrayBuffer>
 let gainNode: GainNode
 let time = 0
@@ -25,8 +31,7 @@ addEventListener('resize', () => {
     canvas.height = height
 })
 addEventListener('pointermove', onPointerMove)
-canvas.addEventListener('click', async () => {
-    audioContext || (await createContext())
+canvas.addEventListener('click', () => {
     playing ? pause() : play()
     const { width, height } = resize()
     canvas.width = width
@@ -34,13 +39,41 @@ canvas.addEventListener('click', async () => {
     tick()
 })
 
+playDefaultButton.addEventListener('click', async () => {
+    setupCanvas()
+})
+
+inputElement.addEventListener('change', async (e: Event) => {
+    const target = e.currentTarget as HTMLInputElement
+    if (!target.files) return
+    const file = target.files[0]
+    const url = URL.createObjectURL(file)
+
+    audioElement.src = url
+
+    setupCanvas()
+})
+
+async function setupCanvas() {
+    hideButtons()
+    canvas.style.display = 'block'
+    const guiElement = document.querySelector('.dg.main')! as HTMLElement
+    guiElement.style.display = 'block'
+
+    audioContext || (await createContext())
+    play()
+    const { width, height } = resize()
+    canvas.width = width
+    canvas.height = height
+    tick()
+}
+
 async function createContext() {
     audioContext = new AudioContext()
 
     const mediaSourceNode = audioContext.createMediaElementSource(audioElement)
     analyser = audioContext.createAnalyser()
     analyser.fftSize = 512
-    analyserTimeDomainBuffer = new Uint8Array(analyser.frequencyBinCount)
     analyserFrequencyBuffer = new Uint8Array(analyser.frequencyBinCount)
 
     mediaSourceNode.connect(analyser)
@@ -56,7 +89,6 @@ function render() {
     elapsed += delta
     time = currentTime
 
-    analyser.getByteTimeDomainData(analyserTimeDomainBuffer)
     analyser.getByteFrequencyData(analyserFrequencyBuffer)
 
     context.clearRect(0, 0, canvas.width, canvas.height)
@@ -163,4 +195,10 @@ function pause() {
 function onPointerMove(e: PointerEvent) {
     cursor.x = e.clientX
     cursor.y = e.clientY
+}
+
+function hideButtons() {
+    playDefaultButton.style.display = 'none'
+    inputElement.style.display = 'none'
+    inputContainerElement.style.display = 'none'
 }

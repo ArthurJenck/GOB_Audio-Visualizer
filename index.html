@@ -8,8 +8,17 @@
         <title>audio-visualizer</title>
     </head>
     <body>
-        <canvas id="canvas"></canvas>
-        <audio src="/sound.mp3" loop></audio>
+        <div class="audio-input__container">
+            <label for="audio-input" class="sketchy audio-input__label">
+                Upload sound
+            </label>
+            <input type="file" accept="audio/*" id="audio-input" />
+        </div>
+        <button id="play-default-btn" class="sketchy">
+            Play default music
+        </button>
+        <canvas id="canvas" />
+        <audio src="/sound.mp3" loop />
         <script type="module" src="/src/main.ts"></script>
     </body>
 </html>

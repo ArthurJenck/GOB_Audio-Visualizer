@@ -17,6 +17,7 @@ let time = 0
 let delta = 0
 let elapsed = 0
 let cursor = { x: window.innerWidth, y: window.innerHeight }
+let center = { x: window.innerWidth / 2, y: window.innerHeight }
 
 addEventListener('resize', resize)
 addEventListener('pointermove', onPointerMove)
@@ -73,8 +74,8 @@ function render() {
     // const barWidth = canvas.width / 2 / length
     // let x = 0
 
-    const parallaxFactor = config.parallax
-    const offset = {
+    const parallaxFactor = config.parallaxToggle ? config.parallaxFactor : 0
+    const distanceCursorCenter = {
         x: cursor.x - canvas.width / 2,
         y: cursor.y - canvas.height / 2,
     }
@@ -100,28 +101,43 @@ function render() {
         const motionFactor = (length - i) / length
         const invertedFactor = 1 - motionFactor
 
-        context.ellipse(
-            // frequencyValue * 2 + canvas.width / 2 + config.positionX,
-            // frequencyValue * 2 + canvas.height / 2 + config.positionY,
-            // f * cursorx + fm * centerx - distance x para * fm ‎ = 100
+        const offset = config.parallaxToggle
+            ? {
+                  x: -distanceCursorCenter.x * parallaxFactor * invertedFactor,
+                  y: -distanceCursorCenter.y * parallaxFactor * invertedFactor,
+              }
+            : {
+                  x: config.positionX * invertedFactor,
+                  y: config.positionY * invertedFactor,
+              }
+
+        const positionX =
             motionFactor * cursor.x +
-                invertedFactor * (canvas.width / 2) -
-                offset.x * parallaxFactor * invertedFactor,
+            invertedFactor * (canvas.width / 2) +
+            offset.x
+
+        const positionY =
             motionFactor * cursor.y +
-                invertedFactor * (canvas.height / 2) -
-                offset.y * parallaxFactor * invertedFactor,
-            // (canvas.width / 2) * 1 -
-            //     motionFactor +
-            //     (cursor.x - canvas.width / 2) * motionFactor -
-            //     offset.x * parallaxFactor,
-            // (canvas.height / 2) * 1 -
-            //     motionFactor +
-            //     (cursor.y - canvas.height / 2) * motionFactor -
-            //     offset.y * parallaxFactor,
-            (factoredValue / 100) * config.radiusX + i * config.spacing,
-            (factoredValue / 100) * config.radiusY + i * config.spacing,
-            // elapsed / 1000 + config.rotation,
-            config.rotation,
+            invertedFactor * (canvas.height / 2) +
+            offset.y
+
+        const radiusX =
+            (factoredValue / 100) * config.radiusX + i * config.sizeDifference
+
+        const radiusY =
+            (factoredValue / 100) * config.radiusY + i * config.sizeDifference
+
+        const rotation = config.autoRotationToggle
+            ? elapsed / (1000 - config.autoRotationSpeed * 1000) +
+              config.rotation
+            : config.rotation
+
+        context.ellipse(
+            positionX,
+            positionY,
+            radiusX,
+            radiusY,
+            rotation,
             config.startAngle,
             config.endAngle
         )
@@ -189,9 +205,14 @@ function render() {
 //     }
 // }
 
+const dpr = Math.min(window.devicePixelRatio, 2)
+
 function resize() {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    canvas.width = Math.floor(window.innerWidth * dpr)
+    canvas.height = Math.floor(window.innerHeight * dpr)
+
+    center.x = window.innerWidth / 2
+    center.y = window.innerHeight / 2
 }
 
 function tick() {

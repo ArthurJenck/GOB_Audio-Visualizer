@@ -1,5 +1,6 @@
 import config from './config'
 import createGUI from './gui'
+import resize from './resize'
 
 const canvas = document.querySelector('canvas')!
 const context = canvas.getContext('2d')!
@@ -17,14 +18,19 @@ let time = 0
 let delta = 0
 let elapsed = 0
 let cursor = { x: window.innerWidth, y: window.innerHeight }
-let center = { x: window.innerWidth / 2, y: window.innerHeight }
 
-addEventListener('resize', resize)
+addEventListener('resize', () => {
+    const { width, height } = resize()
+    canvas.width = width
+    canvas.height = height
+})
 addEventListener('pointermove', onPointerMove)
 canvas.addEventListener('click', async () => {
     audioContext || (await createContext())
     playing ? pause() : play()
-    resize()
+    const { width, height } = resize()
+    canvas.width = width
+    canvas.height = height
     tick()
 })
 
@@ -204,16 +210,6 @@ function render() {
 //         context.putImageData(imageData, 0, 0)
 //     }
 // }
-
-const dpr = Math.min(window.devicePixelRatio, 2)
-
-function resize() {
-    canvas.width = Math.floor(window.innerWidth * dpr)
-    canvas.height = Math.floor(window.innerHeight * dpr)
-
-    center.x = window.innerWidth / 2
-    center.y = window.innerHeight / 2
-}
 
 function tick() {
     requestAnimationFrame(tick)

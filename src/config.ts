@@ -8,6 +8,7 @@ const config = {
     startAngle: 3.94,
     endAngle: 3.46,
     spacing: -0.34,
+    parallax: 0.57,
     minFreqThreshold: 40,
     maxFreqThreshold: 250,
     valueFactor: 1.5,

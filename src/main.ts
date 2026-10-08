@@ -68,17 +68,24 @@ function render() {
     // context.stroke()
 
     // const sliceWidth =
-    //     canvas.width / analyserFrequencyBuffer.length + config.sliceWidthOffset
+    //     canvas.width / length + config.sliceWidthOffset
 
-    // const barWidth = canvas.width / 2 / analyserFrequencyBuffer.length
+    // const barWidth = canvas.width / 2 / length
     // let x = 0
 
-    for (let i = 0; i < analyserFrequencyBuffer.length; i++) {
+    const parallaxFactor = config.parallax
+    const offset = {
+        x: cursor.x - canvas.width / 2,
+        y: cursor.y - canvas.height / 2,
+    }
+
+    const length = analyserFrequencyBuffer.length
+
+    for (let i = 0; i < length; i++) {
         // const timeDomainValue = analyserTimeDomainBuffer[i]
         const frequencyValue = analyserFrequencyBuffer[i]
         const factoredValueCalc =
-            frequencyValue -
-            (analyserFrequencyBuffer.length / 4 - i) * config.valueFactor
+            frequencyValue - (length / 4 - i) * config.valueFactor
         const factoredValue = factoredValueCalc < 0 ? 0 : factoredValueCalc
 
         context.beginPath()
@@ -90,19 +97,27 @@ function render() {
             .split(',')
         context.fillStyle = `rgba(${fillColor[0]}, ${fillColor[1]}, ${fillColor[2]}, ${config.fillOpacity})`
 
-        const cursorFactor =
-            (analyserFrequencyBuffer.length - i) /
-            analyserFrequencyBuffer.length
+        const motionFactor = (length - i) / length
+        const invertedFactor = 1 - motionFactor
 
         context.ellipse(
             // frequencyValue * 2 + canvas.width / 2 + config.positionX,
             // frequencyValue * 2 + canvas.height / 2 + config.positionY,
-            (canvas.width / 2) * 1 -
-                cursorFactor +
-                (cursor.x - canvas.width / 2) * cursorFactor,
-            (canvas.height / 2) * 1 -
-                cursorFactor +
-                (cursor.y - canvas.height / 2) * cursorFactor,
+            // f * cursorx + fm * centerx - distance x para * fm ‎ = 100
+            motionFactor * cursor.x +
+                invertedFactor * (canvas.width / 2) -
+                offset.x * parallaxFactor * invertedFactor,
+            motionFactor * cursor.y +
+                invertedFactor * (canvas.height / 2) -
+                offset.y * parallaxFactor * invertedFactor,
+            // (canvas.width / 2) * 1 -
+            //     motionFactor +
+            //     (cursor.x - canvas.width / 2) * motionFactor -
+            //     offset.x * parallaxFactor,
+            // (canvas.height / 2) * 1 -
+            //     motionFactor +
+            //     (cursor.y - canvas.height / 2) * motionFactor -
+            //     offset.y * parallaxFactor,
             (factoredValue / 100) * config.radiusX + i * config.spacing,
             (factoredValue / 100) * config.radiusY + i * config.spacing,
             // elapsed / 1000 + config.rotation,
@@ -123,7 +138,7 @@ function render() {
 
         // context.save()
         // context.translate(canvas.width / 2, canvas.height / 2)
-        // context.rotate((i * (Math.PI * 10)) / analyserFrequencyBuffer.length)
+        // context.rotate((i * (Math.PI * 10)) / length)
 
         // const hue = i * 2
         // context.fillStyle = `hsl(${hue}, 100%, 50%)`
@@ -139,7 +154,7 @@ function render() {
         // context.restore()
     }
 
-    // for (let i = 0; i < analyserFrequencyBuffer.length; i++) {
+    // for (let i = 0; i < length; i++) {
     //     const v = analyserFrequencyBuffer[i] / 128
     //     const y = (v * canvas.height) / 2
 

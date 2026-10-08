@@ -28,12 +28,13 @@ function createGUI() {
     ellipsesFolder.add(config, 'startAngle', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'endAngle', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'spacing', -1, 10, 0.001)
+    ellipsesFolder.add(config, 'parallax', 0, 1, 0.001)
 
     const valuesFolder = gui.addFolder('Frequency values')
     valuesFolder.open()
     valuesFolder.add(config, 'minFreqThreshold', 0, 255)
     valuesFolder.add(config, 'maxFreqThreshold', 0, 255)
-    valuesFolder.add(config, 'valueFactor', 0, 10, 0.001)
+    valuesFolder.add(config, 'valueFactor', 0, 3, 0.001)
 
     const colorsFolder = gui.addFolder('Colors')
     colorsFolder.open()

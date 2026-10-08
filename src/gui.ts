@@ -7,6 +7,7 @@ function createGUI() {
     gui.add(config, 'volume', 0, 1, 0.01)
 
     const ellipsesFolder = gui.addFolder('Ellipses')
+    ellipsesFolder.open()
     ellipsesFolder.add(
         config,
         'positionX',
@@ -26,17 +27,23 @@ function createGUI() {
     ellipsesFolder.add(config, 'rotation', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'startAngle', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'endAngle', 0, 2 * Math.PI, 0.01)
-    ellipsesFolder.add(config, 'spacing', -0.1, 0.1, 0.001)
+    ellipsesFolder.add(config, 'spacing', -1, 10, 0.001)
 
     const valuesFolder = gui.addFolder('Frequency values')
+    valuesFolder.open()
     valuesFolder.add(config, 'minFreqThreshold', 0, 255)
     valuesFolder.add(config, 'maxFreqThreshold', 0, 255)
     valuesFolder.add(config, 'valueFactor', 0, 10, 0.001)
 
     const colorsFolder = gui.addFolder('Colors')
-    colorsFolder.add(config, 'fill')
-    colorsFolder.addColor(config, 'fillColor')
+    colorsFolder.open()
     colorsFolder.add(config, 'blendingMode', blendingModes)
+
+    const fillFolder = colorsFolder.addFolder('Fill')
+    fillFolder.open()
+    fillFolder.add(config, 'fill')
+    fillFolder.addColor(config, 'fillColor')
+    fillFolder.add(config, 'fillOpacity', 0, 1, 0.01)
 }
 
 const blendingModes = [

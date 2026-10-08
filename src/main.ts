@@ -16,8 +16,10 @@ let gainNode: GainNode
 let time = 0
 let delta = 0
 let elapsed = 0
+let cursor = { x: window.innerWidth, y: window.innerHeight }
 
 addEventListener('resize', resize)
+addEventListener('pointermove', onPointerMove)
 canvas.addEventListener('click', async () => {
     audioContext || (await createContext())
     playing ? pause() : play()
@@ -74,17 +76,33 @@ function render() {
     for (let i = 0; i < analyserFrequencyBuffer.length; i++) {
         // const timeDomainValue = analyserTimeDomainBuffer[i]
         const frequencyValue = analyserFrequencyBuffer[i]
-        const factoredValue =
+        const factoredValueCalc =
             frequencyValue -
             (analyserFrequencyBuffer.length / 4 - i) * config.valueFactor
+        const factoredValue = factoredValueCalc < 0 ? 0 : factoredValueCalc
 
         context.beginPath()
 
         // context.strokeStyle = `rgb(${255 - effectiveValue}, ${255 - effectiveValue}, ${255 - effectiveValue})`
-        context.fillStyle = config.fillColor
+        const fillColor = config.fillColor
+            .split('(')[1]
+            .split(')')[0]
+            .split(',')
+        context.fillStyle = `rgba(${fillColor[0]}, ${fillColor[1]}, ${fillColor[2]}, ${config.fillOpacity})`
+
+        const cursorFactor =
+            (analyserFrequencyBuffer.length - i) /
+            analyserFrequencyBuffer.length
+
         context.ellipse(
-            frequencyValue * 2 + canvas.width / 2 + config.positionX,
-            frequencyValue * 2 + canvas.height / 2 + config.positionY,
+            // frequencyValue * 2 + canvas.width / 2 + config.positionX,
+            // frequencyValue * 2 + canvas.height / 2 + config.positionY,
+            (canvas.width / 2) * 1 -
+                cursorFactor +
+                (cursor.x - canvas.width / 2) * cursorFactor,
+            (canvas.height / 2) * 1 -
+                cursorFactor +
+                (cursor.y - canvas.height / 2) * cursorFactor,
             (factoredValue / 100) * config.radiusX + i * config.spacing,
             (factoredValue / 100) * config.radiusY + i * config.spacing,
             // elapsed / 1000 + config.rotation,
@@ -177,4 +195,9 @@ function play() {
 function pause() {
     playing = false
     audioElement.pause()
+}
+
+function onPointerMove(e: PointerEvent) {
+    cursor.x = e.clientX
+    cursor.y = e.clientY
 }

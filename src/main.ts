@@ -27,14 +27,14 @@ let gainNode: GainNode
 let time = 0
 let delta = 0
 let elapsed = 0
-let cursor = { x: window.innerWidth, y: window.innerHeight }
+const cursor = { x: window.innerWidth, y: window.innerHeight }
+const windowSize = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+}
 
 // declare event listeners before callback is possible due to classical functions
-addEventListener('resize', () => {
-    const { width, height } = resize()
-    canvas.width = width
-    canvas.height = height
-})
+addEventListener('resize', setupSize)
 addEventListener('pointermove', onPointerMove)
 
 // uploading custom music simply replaces the audioElement source before playing as usual
@@ -64,9 +64,7 @@ async function setupCanvas() {
     // setup context if no existing one
     audioContext || (await createContext())
     play()
-    const { width, height } = resize()
-    canvas.width = width
-    canvas.height = height
+    setupSize()
     tick()
 }
 
@@ -220,4 +218,12 @@ function hideMainUI() {
 
     h1.style.display = 'none'
     buttonsContainer.style.display = 'none'
+}
+
+function setupSize() {
+    const { width, height, widthWithDpr, heightwithDpr } = resize()
+    windowSize.width = width
+    windowSize.height = height
+    canvas.width = widthWithDpr
+    canvas.height = heightwithDpr
 }

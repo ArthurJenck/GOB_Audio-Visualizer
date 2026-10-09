@@ -1,4 +1,4 @@
-const config = {
+export const config = {
     // Global
     volume: 0.5,
 
@@ -34,8 +34,14 @@ const config = {
     fill: true,
     fillColor: 'rgb(255,255,255)',
     fillOpacity: 1,
+
+    // Presets
+    preset: 0,
 }
 
-export default config
+export const defaultConfig = { ...config } as Config
 
-export type Config = typeof config
+export type Properties = keyof Config
+export type Config = Partial<typeof config>
+
+export default config

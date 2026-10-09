@@ -163,8 +163,8 @@ function render() {
 
         // only draw if frequency value is in tweaked range : minFreq -> value -> maxFreq
         if (
-            config.maxFreqThreshold >= frequencyValue &&
-            frequencyValue >= config.minFreqThreshold
+            frequencyValue > config.minFreqThreshold &&
+            config.maxFreqThreshold >= frequencyValue
         ) {
             // beginPath should be in loop to prevent the shape to be one long stroke
             context.beginPath()

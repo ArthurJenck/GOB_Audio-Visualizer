@@ -25,22 +25,36 @@ function createGUI() {
     positionsFolder.add(config, 'parallaxToggle').listen()
     positionsFolder.add(config, 'parallaxFactor', 0, 1, 0.001).listen()
     positionsFolder
-        .add(config, 'startPositionX', -window.innerWidth, window.innerWidth, 1)
+        .add(
+            config,
+            'startPositionX',
+            -window.innerWidth * 2,
+            window.innerWidth * 2
+        )
         .listen()
     positionsFolder
         .add(
             config,
             'startPositionY',
-            -window.innerHeight,
-            window.innerHeight,
-            1
+            -window.innerHeight * 2,
+            window.innerHeight * 2
         )
         .listen()
     positionsFolder
-        .add(config, 'endPositionX', -window.innerHeight, window.innerHeight, 1)
+        .add(
+            config,
+            'endPositionX',
+            -window.innerWidth * 2,
+            window.innerWidth * 2
+        )
         .listen()
     positionsFolder
-        .add(config, 'endPositionY', -window.innerHeight, window.innerHeight, 1)
+        .add(
+            config,
+            'endPositionY',
+            -window.innerHeight * 2,
+            window.innerHeight * 2
+        )
         .listen()
 
     const valuesFolder = gui.addFolder('Frequency values')

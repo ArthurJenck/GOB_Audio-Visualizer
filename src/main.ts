@@ -1,3 +1,7 @@
+import {
+    calculateCirclePosition,
+    calculateCircleRadius,
+} from './circleCalculations'
 import config from './config'
 import createGUI from './gui'
 import resize from './resize'
@@ -25,24 +29,15 @@ let delta = 0
 let elapsed = 0
 let cursor = { x: window.innerWidth, y: window.innerHeight }
 
+// declare event listeners before callback is possible due to classical functions
 addEventListener('resize', () => {
     const { width, height } = resize()
     canvas.width = width
     canvas.height = height
 })
 addEventListener('pointermove', onPointerMove)
-canvas.addEventListener('click', () => {
-    playing ? pause() : play()
-    const { width, height } = resize()
-    canvas.width = width
-    canvas.height = height
-    tick()
-})
 
-playDefaultButton.addEventListener('click', async () => {
-    setupCanvas()
-})
-
+// uploading custom music simply replaces the audioElement source before playing as usual
 inputElement.addEventListener('change', async (e: Event) => {
     const target = e.currentTarget as HTMLInputElement
     if (!target.files) return
@@ -54,12 +49,19 @@ inputElement.addEventListener('change', async (e: Event) => {
     setupCanvas()
 })
 
+// play default music without overriding audio element's source
+playDefaultButton.addEventListener('click', async () => {
+    setupCanvas()
+})
+
 async function setupCanvas() {
-    hideButtons()
+    // hide upload UI and display canvas + GUI
+    hideMainUI()
     canvas.style.display = 'block'
     const guiElement = document.querySelector('.dg.main')! as HTMLElement
     guiElement.style.display = 'block'
 
+    // setup context if no existing one
     audioContext || (await createContext())
     play()
     const { width, height } = resize()
@@ -68,6 +70,12 @@ async function setupCanvas() {
     tick()
 }
 
+// on click, play/pause the music
+canvas.addEventListener('click', () => {
+    playing ? pause() : play()
+    tick()
+})
+
 async function createContext() {
     audioContext = new AudioContext()
 
@@ -75,101 +83,103 @@ async function createContext() {
     analyser = audioContext.createAnalyser()
     analyser.fftSize = 512
     analyserFrequencyBuffer = new Uint8Array(analyser.frequencyBinCount)
-
-    mediaSourceNode.connect(analyser)
-
     gainNode = audioContext.createGain()
+
+    // mediaSource (input) --> analyser --> gainNode (volume) --> context.destination(output)
+    mediaSourceNode.connect(analyser)
     analyser.connect(gainNode)
     gainNode.connect(audioContext.destination)
 }
 
 function render() {
+    // calculate elapsed time since simulation start + update time
     const currentTime = Date.now()
-    delta = time ? currentTime - time : 0
+    delta = currentTime - time
     elapsed += delta
     time = currentTime
 
     analyser.getByteFrequencyData(analyserFrequencyBuffer)
 
+    // cleanup canvas
     context.clearRect(0, 0, canvas.width, canvas.height)
 
     context.lineWidth = 1
-    context.fillStyle = 'white'
     context.globalCompositeOperation =
         config.blendingMode as GlobalCompositeOperation
 
     gainNode.gain.value = config.volume
 
-    const parallaxFactor = config.parallaxToggle ? config.parallaxFactor : 0
+    // distance between cursor and center of canvas
     const distanceCursorCenter = {
         x: cursor.x - canvas.width / 2,
         y: cursor.y - canvas.height / 2,
     }
 
+    // length of the buffer (= number of circles to display)
     const length = analyserFrequencyBuffer.length
 
+    // convert rgb(x,y,z) syntax to array and use it as fillStyle with the tweaked opacity
+    const fillColor = config.fillColor.split('(')[1].split(')')[0].split(',')
+    context.fillStyle = `rgba(${fillColor[0]}, ${fillColor[1]}, ${fillColor[2]}, ${config.fillOpacity})`
+
+    // Circles generation loop
     for (let i = 0; i < length; i++) {
         const frequencyValue = analyserFrequencyBuffer[i]
-        const factoredValueCalc =
-            frequencyValue - (length / 4 - i) * config.valueFactor
-        const factoredValue = factoredValueCalc < 0 ? 0 : factoredValueCalc
 
-        context.beginPath()
-
-        const fillColor = config.fillColor
-            .split('(')[1]
-            .split(')')[0]
-            .split(',')
-        context.fillStyle = `rgba(${fillColor[0]}, ${fillColor[1]}, ${fillColor[2]}, ${config.fillOpacity})`
-
+        // amount of motion a circle should have, depending on its index (first one moves a lot, last one almost doesn't at all), value ranges from 1->0
         const motionFactor = (length - i) / length
+        // inverted aforementioned factor, for calculation purposes, ranges from 0->1
         const invertedFactor = 1 - motionFactor
 
-        const offset = config.parallaxToggle
-            ? {
-                  x: -distanceCursorCenter.x * parallaxFactor * invertedFactor,
-                  y: -distanceCursorCenter.y * parallaxFactor * invertedFactor,
-              }
-            : {
-                  x: config.positionX * invertedFactor,
-                  y: config.positionY * invertedFactor,
-              }
+        const position = {
+            x: calculateCirclePosition(
+                distanceCursorCenter.x,
+                cursor.x,
+                canvas.width / 2,
+                motionFactor,
+                invertedFactor,
+                config.positionX
+            ),
+            y: calculateCirclePosition(
+                distanceCursorCenter.y,
+                cursor.y,
+                canvas.height / 2,
+                motionFactor,
+                invertedFactor,
+                config.positionY
+            ),
+        }
 
-        const positionX =
-            motionFactor * cursor.x +
-            invertedFactor * (canvas.width / 2) +
-            offset.x
+        const radius = {
+            x: calculateCircleRadius(frequencyValue, config.radiusX, i),
+            y: calculateCircleRadius(frequencyValue, config.radiusY, i),
+        }
 
-        const positionY =
-            motionFactor * cursor.y +
-            invertedFactor * (canvas.height / 2) +
-            offset.y
-
-        const radiusX =
-            (factoredValue / 100) * config.radiusX + i * config.sizeDifference
-
-        const radiusY =
-            (factoredValue / 100) * config.radiusY + i * config.sizeDifference
-
+        // calculate rotation depending on the toggle for autoRotation, if enabled use the elapsed time and divide it by the autorotationSpeed inverted by 1000 as elapsed in in ms and multiplied by 1000 to make it matter
         const rotation = config.autoRotationToggle
-            ? elapsed / (1000 - config.autoRotationSpeed * 1000) +
+            ? (elapsed / (1000 - config.autoRotationSpeed * 1000)) *
+                  motionFactor +
               config.rotation
             : config.rotation
 
-        context.ellipse(
-            positionX,
-            positionY,
-            radiusX,
-            radiusY,
-            rotation,
-            config.startAngle,
-            config.endAngle
-        )
-
+        // only draw if frequency value is in tweaked range : minFreq -> value -> maxFreq
         if (
             config.maxFreqThreshold >= frequencyValue &&
             frequencyValue >= config.minFreqThreshold
         ) {
+            // beginPath should be in loop to prevent the shape to be one long stroke
+            context.beginPath()
+            context.ellipse(
+                position.x,
+                position.y,
+                radius.x,
+                radius.y,
+                rotation,
+                config.startAngle,
+                config.endAngle
+            )
+
+            // fill if toggled in tweaks
             if (config.fill) context.fill()
             context.stroke()
         }
@@ -197,8 +207,16 @@ function onPointerMove(e: PointerEvent) {
     cursor.y = e.clientY
 }
 
-function hideButtons() {
+function hideMainUI() {
     playDefaultButton.style.display = 'none'
     inputElement.style.display = 'none'
     inputContainerElement.style.display = 'none'
+
+    const h1 = document.querySelector('h1')! as HTMLHeadingElement
+    const buttonsContainer = document.querySelector(
+        '.buttons'
+    )! as HTMLDivElement
+
+    h1.style.display = 'none'
+    buttonsContainer.style.display = 'none'
 }

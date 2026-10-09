@@ -29,7 +29,7 @@ function createGUI() {
     ellipsesFolder.add(config, 'rotation', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'startAngle', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'endAngle', 0, 2 * Math.PI, 0.01)
-    ellipsesFolder.add(config, 'sizeDifference', -1, 10, 0.001)
+    ellipsesFolder.add(config, 'sizeDifference', -1.5, 10, 0.001)
 
     const parallaxFolder = gui.addFolder('Parallax')
     parallaxFolder.open()

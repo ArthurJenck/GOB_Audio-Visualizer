@@ -8,6 +8,7 @@ function createGUI() {
 
     const ellipsesFolder = gui.addFolder('Ellipses')
     ellipsesFolder.open()
+    ellipsesFolder.add(config, 'strokeWidth', 0, 10, 0.01)
     ellipsesFolder.add(
         config,
         'positionX',

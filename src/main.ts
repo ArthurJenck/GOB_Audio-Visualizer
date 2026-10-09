@@ -103,7 +103,7 @@ function render() {
     // cleanup canvas
     context.clearRect(0, 0, canvas.width, canvas.height)
 
-    context.lineWidth = 1
+    context.lineWidth = config.strokeWidth
     context.globalCompositeOperation =
         config.blendingMode as GlobalCompositeOperation
 

@@ -9,20 +9,6 @@ function createGUI() {
     const ellipsesFolder = gui.addFolder('Ellipses')
     ellipsesFolder.open()
     ellipsesFolder.add(config, 'strokeWidth', 0, 10, 0.01)
-    ellipsesFolder.add(
-        config,
-        'positionX',
-        -window.innerWidth,
-        window.innerWidth,
-        1
-    )
-    ellipsesFolder.add(
-        config,
-        'positionY',
-        -window.innerHeight,
-        window.innerHeight,
-        1
-    )
     ellipsesFolder.add(config, 'radiusX', 0, 500, 0.01)
     ellipsesFolder.add(config, 'radiusY', 0, 500, 0.01)
     ellipsesFolder.add(config, 'autoRotationToggle')
@@ -32,10 +18,39 @@ function createGUI() {
     ellipsesFolder.add(config, 'endAngle', 0, 2 * Math.PI, 0.01)
     ellipsesFolder.add(config, 'sizeDifference', -1.5, 10, 0.001)
 
-    const parallaxFolder = gui.addFolder('Parallax')
-    parallaxFolder.open()
-    parallaxFolder.add(config, 'parallaxToggle')
-    parallaxFolder.add(config, 'parallaxFactor', 0, 1, 0.001)
+    const positionsFolder = gui.addFolder('Positions')
+    positionsFolder.open()
+    positionsFolder.add(config, 'followCursor')
+    positionsFolder.add(config, 'parallaxToggle')
+    positionsFolder.add(config, 'parallaxFactor', 0, 1, 0.001)
+    positionsFolder.add(
+        config,
+        'startPositionX',
+        -window.innerWidth,
+        window.innerWidth,
+        1
+    )
+    positionsFolder.add(
+        config,
+        'startPositionY',
+        -window.innerHeight,
+        window.innerHeight,
+        1
+    )
+    positionsFolder.add(
+        config,
+        'endPositionX',
+        -window.innerHeight,
+        window.innerHeight,
+        1
+    )
+    positionsFolder.add(
+        config,
+        'endPositionY',
+        -window.innerHeight,
+        window.innerHeight,
+        1
+    )
 
     const valuesFolder = gui.addFolder('Frequency values')
     valuesFolder.open()

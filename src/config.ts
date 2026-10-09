@@ -4,8 +4,7 @@ const config = {
 
     // Ellipses
     strokeWidth: 1,
-    positionX: 0,
-    positionY: 0,
+
     radiusX: 35,
     radiusY: 35,
     autoRotationToggle: false,
@@ -15,9 +14,14 @@ const config = {
     endAngle: 3.46,
     sizeDifference: -0.8,
 
-    // Parallax
+    // Position
+    followCursor: true,
     parallaxToggle: true,
     parallaxFactor: 0.65,
+    startPositionX: 0,
+    startPositionY: 0,
+    endPositionX: 0,
+    endPositionY: 0,
 
     // Frequency values
     minFreqThreshold: 40,

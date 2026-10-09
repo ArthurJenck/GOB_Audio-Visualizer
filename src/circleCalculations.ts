@@ -6,19 +6,21 @@ export function calculateCirclePosition(
     canvasCenter: number,
     motionFactor: number,
     invertedMotionFactor: number,
-    tweakedPosition: number
+    tweakedStartPosition: number,
+    tweakedEndPosition: number
 ): number {
     // calculate offset depending on parallax enabled or not, using the distance from the cursor to the center with the tweaked parallax factor multiplied by the inverted motion factor. Otherwise, use the basic tweaked position with the inverted motion factor
     const offset = config.parallaxToggle
         ? -distanceCursorCenter * config.parallaxFactor * invertedMotionFactor
-        : tweakedPosition * invertedMotionFactor
+        : tweakedEndPosition * invertedMotionFactor
+
+    // the motionFactor decide how much the ellipse should follow the cursor position
+    const startPosition = config.followCursor
+        ? motionFactor * cursorPosition
+        : tweakedStartPosition
 
     // use the motionFactor with the cursor position, the invertedMotionFactor with the center of the canvas (so the last element is as close from the center as possible) then add calculated offset
-    return (
-        motionFactor * cursorPosition +
-        invertedMotionFactor * canvasCenter +
-        offset
-    )
+    return startPosition + invertedMotionFactor * canvasCenter + offset
 }
 
 export function calculateCircleRadius(

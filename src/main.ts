@@ -75,7 +75,6 @@ canvas.addEventListener('click', () => {
     playing ? pause() : play()
     tick()
 })
-
 async function createContext() {
     audioContext = new AudioContext()
 
@@ -138,7 +137,8 @@ function render() {
                 canvas.width / 2,
                 motionFactor,
                 invertedFactor,
-                config.positionX
+                config.startPositionX,
+                config.endPositionX
             ),
             y: calculateCirclePosition(
                 distanceCursorCenter.y,
@@ -146,7 +146,8 @@ function render() {
                 canvas.height / 2,
                 motionFactor,
                 invertedFactor,
-                config.positionY
+                config.startPositionY,
+                config.endPositionY
             ),
         }
 

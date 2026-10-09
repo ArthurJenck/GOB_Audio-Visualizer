@@ -1,6 +1,48 @@
 import { defaultConfig, type Config } from './config'
 import resize from './resize'
 
+export function setPreset(
+    config: Config,
+    presetIndex: number,
+    cycle: boolean = false
+) {
+    Object.assign(config, { ...defaultConfig, preset: presetIndex })
+    if (cycle) {
+        Object.assign(config, {
+            ...presets[presetIndex],
+            cycle: true,
+        })
+        return
+    }
+    const newPreset = presets[presetIndex]
+    Object.assign(config, newPreset)
+}
+
+function updatePresetInterval(
+    timeout: number = 1000,
+    config: Config,
+    startAt: number = 1
+) {
+    let i = startAt
+    const timer = setInterval(function () {
+        i++
+        setPreset(config, i % presets.length, true)
+    }, timeout)
+
+    return timer
+}
+
+let intervalRef: number = 0
+export function togglePresetCycle(enabled: boolean, config: Config) {
+    const startAt = config.preset ? config.preset + 1 : 1
+    if (enabled) {
+        setPreset(config, startAt, true)
+        intervalRef = updatePresetInterval(1000, config, startAt)
+    } else {
+        if (intervalRef) clearInterval(intervalRef)
+    }
+}
+
 const { width, height } = resize()
 
 const presets: Config[] = [
@@ -107,8 +149,4 @@ const presets: Config[] = [
     },
 ]
 
-console.log(width, height)
-
 export default presets
-
-// 1470 883

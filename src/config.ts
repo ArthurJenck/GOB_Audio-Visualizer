@@ -37,6 +37,7 @@ export const config = {
 
     // Presets
     preset: 0,
+    cycle: false,
 }
 
 export const defaultConfig = { ...config } as Config

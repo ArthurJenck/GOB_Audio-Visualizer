@@ -1,6 +1,6 @@
 import { GUI } from 'dat.gui'
-import config, { defaultConfig } from './config'
-import presets from './presets'
+import config from './config'
+import presets, { setPreset, togglePresetCycle } from './presets'
 
 function createGUI() {
     const gui = new GUI()
@@ -77,11 +77,12 @@ function createGUI() {
     presetsFolder.open()
     presetsFolder
         .add(config, 'preset', 0, presets.length - 1, 1)
-        .onChange((presetIndex) => {
-            const newPreset = presets[presetIndex]
-            Object.assign(config, { ...defaultConfig, preset: presetIndex })
-            Object.assign(config, newPreset)
-        })
+        .onChange((presetIndex) => setPreset(config, presetIndex))
+        .listen()
+    presetsFolder
+        .add(config, 'cycle')
+        .onChange((checked) => togglePresetCycle(checked, config))
+        .listen()
 }
 
 const blendingModes = [

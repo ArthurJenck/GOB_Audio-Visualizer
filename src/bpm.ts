@@ -6,7 +6,6 @@ async function getBpm(buffer: AudioBuffer) {
     if (bpm) return bpm
     await guess(buffer).then(({ bpm: detectedBpm }) => {
         bpm = detectedBpm
-        console.log(bpm)
     })
     return bpm
 }

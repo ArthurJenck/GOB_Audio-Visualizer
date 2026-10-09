@@ -1,3 +1,4 @@
+import getBpm from './bpm'
 import {
     calculateCirclePosition,
     calculateCircleRadius,
@@ -19,7 +20,9 @@ const playDefaultButton = document.querySelector(
 
 createGUI()
 
+let arrayBuffer: ArrayBuffer
 let audioContext: AudioContext
+export let audioBuffer: AudioBuffer
 let playing = false
 let analyser: AnalyserNode
 let analyserFrequencyBuffer: Uint8Array<ArrayBuffer>
@@ -46,11 +49,27 @@ inputElement.addEventListener('change', async (e: Event) => {
 
     audioElement.src = url
 
-    setupCanvas()
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+        if (reader.result && typeof reader.result !== 'string') {
+            arrayBuffer = reader.result
+            setupCanvas()
+        }
+    }
+    reader.onerror = () => {
+        throw new Error('Error while loading file.')
+    }
+
+    reader.readAsArrayBuffer(file)
 })
 
 // play default music without overriding audio element's source
 playDefaultButton.addEventListener('click', async () => {
+    const response = await fetch('/narwhal.mp3')
+    arrayBuffer = await response.arrayBuffer()
+
     setupCanvas()
 })
 
@@ -73,8 +92,11 @@ canvas.addEventListener('click', () => {
     playing ? pause() : play()
     tick()
 })
+
 async function createContext() {
     audioContext = new AudioContext()
+    audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    await getBpm(audioBuffer)
 
     const mediaSourceNode = audioContext.createMediaElementSource(audioElement)
     analyser = audioContext.createAnalyser()

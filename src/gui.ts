@@ -1,5 +1,7 @@
 import { GUI } from 'dat.gui'
+import getBpm from './bpm'
 import config from './config'
+import { audioBuffer } from './main'
 import presets, { setPreset, togglePresetCycle } from './presets'
 
 function createGUI() {
@@ -81,7 +83,10 @@ function createGUI() {
         .listen()
     presetsFolder
         .add(config, 'cycle')
-        .onChange((checked) => togglePresetCycle(checked, config))
+        .onChange(async (checked) => {
+            const bpm = await getBpm(audioBuffer)
+            togglePresetCycle(checked, config, bpm * 8)
+        })
         .listen()
 }
 

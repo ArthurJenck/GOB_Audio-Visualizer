@@ -33,11 +33,15 @@ function updatePresetInterval(
 }
 
 let intervalRef: number = 0
-export function togglePresetCycle(enabled: boolean, config: Config) {
+export function togglePresetCycle(
+    enabled: boolean,
+    config: Config,
+    bpm: number
+) {
     const startAt = config.preset ? config.preset + 1 : 1
     if (enabled) {
         setPreset(config, startAt, true)
-        intervalRef = updatePresetInterval(1000, config, startAt)
+        intervalRef = updatePresetInterval(bpm, config, startAt)
     } else {
         if (intervalRef) clearInterval(intervalRef)
     }
